@@ -1,0 +1,36 @@
+{
+  "product": "64620",
+      "page": 0,
+      "count": 100,
+      "results": [
+          {
+              "review_id": 1135537,
+              "rating": 5,
+              "summary": "good product?",
+              "recommend": true,
+              "response": null,
+              "body": "it may be good i do not know, this is only a test and the product isnt real",
+              "date": "2022-02-12T00:00:00.000Z",
+              "reviewer_name": "joe",
+              "helpfulness": 37,
+              "photos": []
+          },
+          {
+              "review_id": 1175666,
+              "rating": 3,
+              "summary": "testing if this works",
+              "recommend": true,
+              "response": null,
+              "body": "Is it working now?",
+              "date": "2022-04-06T00:00:00.000Z",
+              "reviewer_name": "tandha",
+              "helpfulness": 7,
+              "photos": [
+                  {
+                      "id": 2259042,
+                      "url": "https://d23.com/app/uploads/2019/06/1180w-600h_061819_tarzan-20th-anniversary.jpg"
+                  }
+              ]
+          }
+        ]
+}

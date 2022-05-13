@@ -1,0 +1,27 @@
+{
+  "name": "darian-ratings-reviews",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rpp34-sdc-datalink/darian-ratings-reviews.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rpp34-sdc-datalink/darian-ratings-reviews/issues"
+  },
+  "homepage": "https://github.com/rpp34-sdc-datalink/darian-ratings-reviews#readme",
+  "devDependencies": {
+    "jest": "^28.1.0"
+  },
+  "dependencies": {
+    "mongoose": "^6.3.3",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.19.0"
+  }
+}
