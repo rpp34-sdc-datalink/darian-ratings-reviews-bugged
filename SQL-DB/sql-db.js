@@ -35,10 +35,6 @@ const Reveiw = sequelize.define('Reveiw', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  recommend: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false
-  },
   response: {
     type: DataTypes.STRING
   },
@@ -55,6 +51,15 @@ const Reveiw = sequelize.define('Reveiw', {
   },
   helpfulness: {
     type: DataTypes.INTEGER
+  }
+})
+
+const Recommended = sequelize.define('Recommended', {
+  true: {
+    type: DataTypes.BOOLEAN
+  },
+  false: {
+    type: DataTypes.BOOLEAN
   }
 })
 
