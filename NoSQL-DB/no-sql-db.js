@@ -43,7 +43,8 @@ const Review = new Schema({
   // photos: [{type: mongoose.Types.ObjectId, ref: 'photo'}]
   photos: [Object],
   rating: Number,
-  recommend: Boolean
+  recommend: Boolean,
+  characteristics: Object
 });
 
 const newReview = mongoose.model('newReview', Review);
@@ -58,7 +59,7 @@ const oneCharacteristic = new Schema({
   id: Number,//good
   name: String,//good
   value: String,//get all vals by using char id and searching in rev-char join table. get avg and write to val
-  review_id: {type: mongoose.Types.ObjectId, ref: 'review'}
+  review_id: Number
 });
 
 const characteristics = new Schema({
@@ -98,7 +99,7 @@ const characteristics = new Schema({
     }
 });
 
-const saveReview = (data, dataType) => {
+const saveReview = (data, dataType, review_id) => {
   if (dataType === 'reviews') {
     return newReview.updateOne({review_id: data.review_id}, data, {upsert: true});
   }
@@ -106,28 +107,9 @@ const saveReview = (data, dataType) => {
     let photo = {url: data.url, id: data.id};
     return newReview.findOneAndUpdate({review_id: data.review_id}, {$addToSet: { photos: photo}});
   }
+  if (dataType === 'characteristics') {
+    return newReview.updateOne({review_id: review_id}, {characteristics: data}, {upsert: true});
+  }
 };
 
 module.exports = {newReview, characteristics, Review, saveReview}
-
-
-// const test = new testReview({
-//   product_id: '64620',
-//   review_id: 1135537,
-//   summary: 'good product?',
-//   recommend: true,
-//   response: null,
-//   body: 'it may be good i do not know, this is only a test and the product isnt real',
-//   date: '2022-02-12T00:00:00.000Z',
-//   reviewer_name: 'joe',
-//   helpfulness: 37,
-//   photos: []
-// });
-
-// test.save()
-//   .then(() => {
-//     console.log('saved to DB')
-//   })
-//   .catch((err) => {
-//     console.log('err', err)
-//   })
