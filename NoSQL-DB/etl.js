@@ -1,50 +1,78 @@
 const {Schema, model, mongoose} = require('mongoose');
 const {saveReview} = require('./no-sql-db.js');
 const fs = require('fs');
+const readline = require('readline');
 const path = require('path');
+const { parse } = require("csv-parse");
 
-const etlReviews = (csv) => {
-  let csvArr = csv.split('\n');
-  csvArr = csvArr.slice(1);
+const etlAsync = async (file, etl) => {
+  fs.createReadStream(file)
+    .pipe(parse({ delimiter: ",", from_line: 2 }))
+    .on("data", async function (row) {
+      // console.log(row);
+      await new Promise((resolve) => {
+        etl(row, resolve)
+      })
+      console.log(row)
+    })
+    .on("end", function () {
+      console.log("finished");
+    })
+    .on("error", function (error) {
+      console.log(error.message);
+    });
+}
+
+const etlReviews = (csv, r) => {
+  // let csvArr = csv.split('\n');
+  // csvArr.shift();
 
   let review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness;
   let saveReviewPromises = [];
 
-  csvArr.forEach((data) => {
-    let firstLine = data.split(',');
-    [review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness] = firstLine;
+  // csv.forEach((data) => {
+    // let firstLine = data.split(',');
+    [review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness] = csv;
+    // console.log({review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness})
     saveReviewPromises.push(saveReview({review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness}, 'reviews'))
-    })
+    // })
 
   Promise.all(saveReviewPromises)
     .then(()=> {
-      fs.readFile(path.resolve(__dirname, '../SDC-app-data/csv-test/review-photos.csv'), 'utf8', (err, data) => {
-        if (err) {
-          console.log('err', err)
-        } else {
-          etlReviewPhotos(data)
-        }
-      });
+      console.log('done')
+      r();
+
+      etlAsync(path.resolve(__dirname, '../SDC-app-data/csv-test/review-photos.csv'), etlReviewPhotos)
+    //   fs.readFile(path.resolve(__dirname, '../SDC-app-data/csv-test/review-photos.csv'), 'utf8', (err, data) => {
+    //     if (err) {
+    //       console.log('err', err)
+    //     } else {
+    //       etlReviewPhotos(data)
+    //     }
+    //   });
     })
-    .catch((err) => {
-      console.log('err', err)
-    })
+    // .catch((err) => {
+    //   console.log('Add Reviews ERROR:', err)
+    // })
 }
 
-const etlReviewPhotos = (csv) => {
-  let csvArr = csv.split('\n');
-  csvArr = csvArr.slice(1);
+const etlReviewPhotos = (csv, r) => {
+  // let csvArr = csv.split('\n');
+  // csvArr.shift();
   let id, review_id, url;
   let saveReviewPhotosPromises = [];
 
-  csvArr.forEach((photoData) => {
-    let firstLine = photoData.split(',');
-    [id, review_id, url] = firstLine;
+  // csv.forEach((photoData) => {
+  //   let firstLine = photoData.split(',');
+  //   [id, review_id, url] = firstLine;
     saveReviewPhotosPromises.push(saveReview({id, review_id, url}, 'reviewPhotos'))
-  })
+  // })
 
   Promise.all(saveReviewPhotosPromises)
     .then(()=> {
+      console.log('photo Done')
+      r()
+      /* SEPERATE THESE 2 BY CREATING A SEPERATE CHARACTERISTICS DOCUMENT!! */
       fs.readFile(path.resolve(__dirname, '../SDC-app-data/csv-test/characteristics.csv'), 'utf8', (err, nameData) => {
         if (err) {
           console.log('err', err)
@@ -66,7 +94,7 @@ const etlReviewPhotos = (csv) => {
 
 const etlCharacteristics = async (csvData, csvNameData) => {
   let csvNameDataArr = csvNameData.split('\n');
-  csvNameDataArr = csvNameDataArr.slice(1);
+  csvNameDataArr.shift();
 
   let createNameMap = async (nameData) => {
     let shapedObj = {};
@@ -82,7 +110,7 @@ const etlCharacteristics = async (csvData, csvNameData) => {
   let nameMap = await createNameMap(csvNameDataArr)
 
   let csvDataArr = csvData.split('\n');
-  csvDataArr = csvDataArr.slice(1);
+  csvDataArr.shift();
   let chars = {};
   let characteristicsPromiseArr = [];
   await csvDataArr.forEach((data) => {
@@ -96,7 +124,7 @@ const etlCharacteristics = async (csvData, csvNameData) => {
     }
     characteristicsPromiseArr.push(saveReview(chars[review_id], 'characteristics', review_id))
   })
-  console.log({nameMap})
+  // console.log({nameMap})
 
   Promise.all(characteristicsPromiseArr)
     .then(() => {
@@ -106,36 +134,32 @@ const etlCharacteristics = async (csvData, csvNameData) => {
       console.log('err', err)
     })
 }
+// let reviewFileStream = fs.createReadStream(path.resolve(__dirname, '../SDC-app-data/csv-test/reviews-test.csv'), 'utf8');
 
-fs.readFile(path.resolve(__dirname, '../SDC-app-data/csv-test/reviews-test.csv'), 'utf8', (err, data) => {
-  if (err) {
-    console.log('err', err)
-  } else {
-    etlReviews(data)
-  }
-});
+// reviewFileStream.on('data', (chunk) => {
+//   console.log(chunk)
+//   etlReviews(chunk)
+// })
 
-// fs.readFile(path.resolve(__dirname, '../SDC-app-data/csv-data/reviews-photos.csv'), 'utf8', (err, data) => {
+// fs.readFile(path.resolve(__dirname, '../SDC-app-data/csv-test/reviews-test.csv'), 'utf8', (err, data) => {
 //   if (err) {
-//     console.log('err', err)
+//     console.log('Read Reveiws File ERROR:', err)
 //   } else {
-//     etlReviewPhotos(data)
+//     etlReviews(data)
 //   }
 // });
 
-// fs.readFile(path.resolve(__dirname, '../SDC-app-data/csv-data/characteristics.csv'), 'utf8', (err, nameData) => {
-//   if (err) {
-//     console.log('err', err)
-//   } else {
-//     fs.readFile(path.resolve(__dirname, '../SDC-app-data/csv-data/characteristics_reviews.csv'), 'utf8', (err, data) => {
-//       if (err) {
-//         console.log('err', err)
-//       } else {
-//         etlCharacteristics(data, nameData)
-//       }
-//     });
-//   }
+// const rl = readline.createInterface({
+//   input: fs.createReadStream(path.resolve(__dirname, '../SDC-app-data/csv-test/reviews-test.csv')),
+//   crlfDelay: Infinity
 // });
+
+//  rl.on('line', (line)=> {
+//   console.log({line})
+// })
+
+
+etlAsync(path.resolve(__dirname, '../SDC-app-data/csv-test/reviews-test.csv'), etlReviews)
 
 module.exports = {etlReviews, etlReviewPhotos, etlCharacteristics}
 

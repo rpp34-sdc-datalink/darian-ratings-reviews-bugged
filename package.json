@@ -21,6 +21,7 @@
     "jest": "^28.1.0"
   },
   "dependencies": {
+    "csv-parse": "^5.0.4",
     "mongoose": "^6.3.3",
     "mysql2": "^2.3.3",
     "sequelize": "^6.19.0"
