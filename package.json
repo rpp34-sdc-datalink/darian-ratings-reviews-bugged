@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/rpp34-sdc-datalink/darian-ratings-reviews#readme",
   "devDependencies": {
+    "eslint": "^8.16.0",
     "jest": "^28.1.0"
   },
   "dependencies": {
