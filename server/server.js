@@ -66,7 +66,7 @@ app.get('/reviews/meta', (req, res) => {
       }
 
       for (let key in charsAvg) {
-        charsAvg[key] = charsAvg[key] / results.length;
+        charsAvg[key] = {value: charsAvg[key] / results.length};
       }
 
       response.characteristics = charsAvg;
