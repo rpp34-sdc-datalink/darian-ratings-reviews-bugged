@@ -52,6 +52,9 @@ const etlAsync = async (file, etl, type) => {
       if (type === 'reviews') {
         let review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness;
         [review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness] = row;
+        if (response === 'null') {
+          response = '';
+        }
         dataToAdd.push({review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness});
       }
 
@@ -123,17 +126,17 @@ const etlAsync = async (file, etl, type) => {
       }
       if (type === 'reviews') {
         console.log("******Reviews Finished******");
-        let csvFile = path.resolve(__dirname, '../SDC-app-data/csv-data/characteristics.csv')
+        let csvFile = path.resolve(__dirname, '../../SDC-app-data/csv-data/characteristics.csv')
         etlAsync(csvFile, 'noFuncitonNeeded', 'char')
       }
       if (type === 'char') {
         console.log('******Characteristics Finished******')
-        let csvFile = path.resolve(__dirname, '../SDC-app-data/csv-data/reviews_photos.csv')
+        let csvFile = path.resolve(__dirname, '../../SDC-app-data/csv-data/reviews_photos.csv')
         etlAsync(csvFile, etlReviewPhotos, 'photo')
       }
       if(type === 'photo') {
         console.log('******Photos Finished******')
-        let csvFile = path.resolve(__dirname, '../SDC-app-data/csv-data/characteristic_reviews.csv')
+        let csvFile = path.resolve(__dirname, '../../SDC-app-data/csv-data/characteristic_reviews.csv')
         etlAsync(csvFile, etlCharacteristics, 'rev-char')
       }
       if(type === 'rev-char') {
@@ -147,4 +150,4 @@ const etlAsync = async (file, etl, type) => {
     });
 }
 
-etlAsync(path.resolve(__dirname, '../SDC-app-data/csv-data/reviews.csv'), etlReviews, 'reviews');
+etlAsync(path.resolve(__dirname, '../../SDC-app-data/csv-data/reviews.csv'), etlReviews, 'reviews');

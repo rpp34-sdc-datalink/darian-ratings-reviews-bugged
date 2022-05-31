@@ -52,7 +52,14 @@ const getReviews = (params) => {
   if (params.sort === 'helpful') {
     sort.helpfulness = -1;
   }
-  return newReview.find({product_id}).limit(count).sort(sort);
+  return newReview.find(
+    {product_id},
+    {
+      _id: false,
+      product_id: false,
+      __v: false
+    }
+  ).limit(count).sort(sort);
 };
 
 module.exports = {newReview, getReviews, saveReview};

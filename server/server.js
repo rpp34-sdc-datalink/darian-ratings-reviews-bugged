@@ -13,7 +13,13 @@ app.get('/reviews', (req, res) => {
 
   getReviews(params)
     .then((results) => {
-      res.send(results);
+      let response = {
+        product: params.product_id,
+        page: params.page || 0,
+        count: results.length || 5,
+        results: results
+      };
+      res.send(response);
     })
     .catch((err) => {
       console.log('GET Reviews ERROR:', err);
