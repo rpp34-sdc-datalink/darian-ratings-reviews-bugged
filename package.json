@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "etl": "node NoSQL-DB/etl.js"
   },
   "repository": {
     "type": "git",
@@ -17,9 +18,11 @@
   },
   "homepage": "https://github.com/rpp34-sdc-datalink/darian-ratings-reviews#readme",
   "devDependencies": {
+    "eslint": "^8.16.0",
     "jest": "^28.1.0"
   },
   "dependencies": {
+    "csv-parse": "^5.0.4",
     "mongoose": "^6.3.3",
     "mysql2": "^2.3.3",
     "sequelize": "^6.19.0"
