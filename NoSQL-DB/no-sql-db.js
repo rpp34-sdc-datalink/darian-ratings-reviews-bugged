@@ -57,9 +57,18 @@ const getReviews = (params) => {
     {
       _id: false,
       product_id: false,
-      __v: false
+      __v: false,
+      characteristics: false
     }
   ).limit(count).sort(sort);
 };
 
-module.exports = {newReview, getReviews, saveReview};
+const getAllReviews = (product_id) => {
+  return newReview.find({product_id}, {
+    _id: false,
+    product_id: false,
+    __v: false
+  });
+};
+
+module.exports = {newReview, getReviews, getAllReviews, saveReview};

@@ -67,6 +67,7 @@ const etlAsync = async (file, etl, type) => {
       if (type === 'photo') {
         let id, review_id, url;
         [id, review_id, url] = row;
+        id = +id;
         let photo = {id, url};
         stream.pause()
         let rev = await newReview.findOne({review_id});
