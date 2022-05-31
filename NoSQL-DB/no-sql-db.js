@@ -40,19 +40,6 @@ const saveReview = (data, dataType, review_id) => {
   }
 };
 
-const saveReview = (data, dataType, review_id) => {
-  if (dataType === 'reviews') {
-    return newReview.insertMany(data);
-  }
-  if (dataType === 'reviewPhotos') {
-    let photo = {url: data.url, id: data.id};
-    return newReview.bulkSave(data);
-  }
-  if (dataType === 'characteristics') {
-    return newReview.bulkWrite(data);
-  }
-};
-
 const getReviews = (params) => {
 
   let count = params.count || 5;
