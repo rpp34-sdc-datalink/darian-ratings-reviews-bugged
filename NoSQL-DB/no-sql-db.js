@@ -40,4 +40,32 @@ const saveReview = (data, dataType, review_id) => {
   }
 };
 
-module.exports = {newReview, Review, saveReview};
+const saveReview = (data, dataType, review_id) => {
+  if (dataType === 'reviews') {
+    return newReview.insertMany(data);
+  }
+  if (dataType === 'reviewPhotos') {
+    let photo = {url: data.url, id: data.id};
+    return newReview.bulkSave(data);
+  }
+  if (dataType === 'characteristics') {
+    return newReview.bulkWrite(data);
+  }
+};
+
+const getReviews = (params) => {
+
+  let count = params.count || 5;
+  let page = params.page || 1;
+  let product_id = params.product_id;
+  let sort = {};
+  if (params.sort === 'newest') {
+    sort.date = -1;
+  }
+  if (params.sort === 'helpful') {
+    sort.helpfulness = -1;
+  }
+  return newReview.find({product_id}).limit(count).sort(sort);
+};
+
+module.exports = {newReview, getReviews, saveReview};
