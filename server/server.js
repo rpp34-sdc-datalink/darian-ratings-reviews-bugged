@@ -39,7 +39,11 @@ app.get('/reviews/meta', (req, res) => {
 
   getAllReviews(product_id)
     .then((results) => {
-      results.forEach((review) => {
+      let charsAvg = {};
+
+      for (let i = 0; i < results.length; i++) {
+        let review = results[i];
+
         if (response.ratings[review.rating] === undefined) {
           response.ratings[review.rating] = 1;
         } else {
@@ -50,7 +54,22 @@ app.get('/reviews/meta', (req, res) => {
         } else {
           response.recommend[review.recommend] += 1;
         }
-      });
+
+        for (let key in review.characteristics) {
+          let value = +review.characteristics[key].value;
+          if (charsAvg[key] === undefined) {
+            charsAvg[key] = value;
+          } else {
+            charsAvg[key] += value;
+          }
+        }
+      }
+
+      for (let key in charsAvg) {
+        charsAvg[key] = charsAvg[key] / results.length;
+      }
+
+      response.characteristics = charsAvg;
       res.send(response);
 
     });
