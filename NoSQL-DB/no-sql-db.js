@@ -27,7 +27,7 @@ const Review = new Schema({
 
 const newReview = mongoose.model('newReview', Review);
 
-const saveReview = (data, dataType, review_id) => {
+const etlSaveReview = (data, dataType, review_id) => {
   if (dataType === 'reviews') {
     return newReview.insertMany(data);
   }
@@ -71,4 +71,33 @@ const getAllReviews = (product_id) => {
   });
 };
 
-module.exports = {newReview, getReviews, getAllReviews, saveReview};
+const postReview = (params) => {
+  console.log(params);
+  let product_id = params.product_id;
+  let rating = params.rating;
+  let summary = params.summary;
+  let body = params.body;
+  let recommended = params.recommended;
+  let name = params.name;
+  let email = params.email;
+  let photos = params.photos;
+  let characteristics = params.characteristics;
+  newReview.find({}).sort({review_id: -1}).limit(1)
+    .then((results) => {
+      newReview.create({
+        review_id: results[0].review_id + 1,
+        product_id,
+        rating,
+        summary,
+        body,
+        recommended,
+        name,
+        email,
+        photos,
+        characteristics
+      });
+    });
+
+};
+
+module.exports = {newReview, etlSaveReview, getReviews, getAllReviews, postReview};

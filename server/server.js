@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const app = express();
 const port = 8024;
 
-const {getReviews, getAllReviews} = require('../NoSQL-DB/no-sql-db.js');
+const {getReviews, getAllReviews, postReview} = require('../NoSQL-DB/no-sql-db.js');
 
 app.use(express.json());
 
@@ -40,6 +40,7 @@ app.get('/reviews/meta', (req, res) => {
   getAllReviews(product_id)
     .then((results) => {
       let charsAvg = {};
+      let charIds = {};
 
       for (let i = 0; i < results.length; i++) {
         let review = results[i];
@@ -57,8 +58,10 @@ app.get('/reviews/meta', (req, res) => {
 
         for (let key in review.characteristics) {
           let value = +review.characteristics[key].value;
+          let id = +review.characteristics[key].id;
           if (charsAvg[key] === undefined) {
             charsAvg[key] = value;
+            charIds[key] = id;
           } else {
             charsAvg[key] += value;
           }
@@ -66,7 +69,10 @@ app.get('/reviews/meta', (req, res) => {
       }
 
       for (let key in charsAvg) {
-        charsAvg[key] = {value: charsAvg[key] / results.length};
+        charsAvg[key] = {
+          value: charsAvg[key] / results.length,
+          id: charIds[key]
+        };
       }
 
       response.characteristics = charsAvg;
@@ -80,6 +86,20 @@ app.get('/reviews/meta', (req, res) => {
    * the response obj
    */
 
+});
+
+app.post('/reviews', (req, res) => {
+  let body = req.body;
+  console.log('BODY', body)
+  postReview(body)
+    .then((results) => {
+      console.log(results);
+      res.sendStatus(200);
+    })
+    .catch((err) => {
+      console.log('POST ERROR:', err);
+      res.sendStatus(500);
+    });
 });
 
 app.listen(port, () => {

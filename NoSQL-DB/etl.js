@@ -1,5 +1,5 @@
 const {Schema, model, mongoose} = require('mongoose');
-const {saveReview, newReview} = require('./no-sql-db.js');
+const {etlSaveReview, newReview} = require('./no-sql-db.js');
 const fs = require('fs');
 const readline = require('readline');
 const path = require('path');
@@ -8,7 +8,7 @@ const { parse } = require("csv-parse");
 
 
 const etlReviews = (csv, next) => {
-    saveReview(csv, 'reviews')
+    etlSaveReview(csv, 'reviews')
       .then(()=> {
         console.log('Review Saved')
         next()
@@ -19,7 +19,7 @@ const etlReviews = (csv, next) => {
 }
 
 const etlReviewPhotos = (csv, next) => {
-  saveReview(csv, 'reviewPhotos')
+  etlSaveReview(csv, 'reviewPhotos')
     .then(()=> {
       console.log('Photo Saved')
       next()
@@ -30,7 +30,7 @@ const etlReviewPhotos = (csv, next) => {
 }
 
 const etlCharacteristics = (csv, next) => {
-    saveReview(csv, 'characteristics')
+    etlSaveReview(csv, 'characteristics')
       .then(() => {
         console.log('Characteritcs Saved')
         next()
