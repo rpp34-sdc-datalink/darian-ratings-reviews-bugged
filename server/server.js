@@ -9,8 +9,6 @@ app.use(express.json());
 
 app.get('/reviews', (req, res) => {
   const params = req.query;
-  console.log(req.query);
-
   getReviews(params)
     .then((results) => {
       let response = {
@@ -78,20 +76,15 @@ app.get('/reviews/meta', (req, res) => {
       response.characteristics = charsAvg;
       res.send(response);
 
+    })
+    .catch((err) => {
+      console.log('GET reviews/meta ERROR:', err);
+      res.sendStatus(500);
     });
-
-  /**
-   * 1 DB query -> find prodid
-   * once we get the results we then filter through and start buliding
-   * the response obj
-   */
-
 });
 
 app.post('/reviews', (req, res) => {
-  let body = req.body;
-  console.log('BODY', body);
-  postReview(body)
+  postReview(req.body)
     .then((results) => {
       res.sendStatus(201);
     })
@@ -105,7 +98,7 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
   const id = req.params.review_id;
   helpful(id)
     .then(() => {
-      res.sendStatus(201);
+      res.sendStatus(204);
     })
     .catch((err) => {
       console.log('PUT helpful ERROR:', err);
@@ -116,7 +109,7 @@ app.put('/reviews/:review_id/report', (req, res) => {
   const id = req.params.review_id;
   report(id)
     .then(() => {
-      res.sendStatus(201);
+      res.sendStatus(204);
     })
     .catch((err) => {
       console.log('PUT report ERROR:', err);
