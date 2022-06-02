@@ -13,12 +13,13 @@ const Review = new Schema({
   review_id: {type: Number, index: true, unique: true},
   summary: String,
   recommend: Boolean,
-  reported: Boolean,
-  response: String,
+  reported: {type: Boolean, default: false},
+  response: {type: String, default: ''},
   body: String,
   date: String,
   reviewer_name: String,
-  helpfulness: Number,
+  reviewer_email: String,
+  helpfulness: {type: Number, default: 0},
   photos: [Object],
   rating: Number,
   recommend: Boolean,
@@ -79,24 +80,50 @@ const postReview = (params) => {
   let body = params.body;
   let recommended = params.recommended;
   let name = params.name;
+  let date = Date.now();
   let email = params.email;
   let photos = params.photos;
   let characteristics = params.characteristics;
-  newReview.find({}).sort({review_id: -1}).limit(1)
+  return newReview.find({}).sort({review_id: -1}).limit(1)
     .then((results) => {
-      newReview.create({
-        review_id: results[0].review_id + 1,
-        product_id,
-        rating,
-        summary,
-        body,
-        recommended,
-        name,
-        email,
-        photos,
-        characteristics
-      });
-    });
+      let newId = results[0].review_id + 1;
+      return newReview.find({product_id: `${product_id}`})
+        .then((prod) => {
+          let chars = prod[0].characteristics;
+          let charsObj = {};
+          for (let key in chars) {
+            let id = chars[key].id;
+            charsObj[key] = {id: id, value: characteristics[id]};
+          }
+
+          let photosArray = [];
+          for (let i = 0; i < photos.length; i++) {
+            photosArray.push({id: i, url: photos[i]});
+          }
+          return {c: charsObj, p: photosArray};
+        })
+        .then((dataToAdd) => {
+          let allPhotos = dataToAdd.p;
+          let allChars = dataToAdd.c;
+          console.log({dataToAdd})
+          return newReview.create({
+            review_id: results[0].review_id + 1,
+            product_id,
+            rating,
+            summary,
+            body,
+            date,
+            recommend: recommended,
+            reviewer_name: name,
+            reviewer_email: email,
+            photos: allPhotos,
+            characteristics: allChars
+          });
+        });
+    })
+    .catch((err) => {
+      console.log('DB Post ERROR', err);
+    })
 
 };
 

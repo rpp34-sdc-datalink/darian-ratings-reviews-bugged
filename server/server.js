@@ -90,10 +90,9 @@ app.get('/reviews/meta', (req, res) => {
 
 app.post('/reviews', (req, res) => {
   let body = req.body;
-  console.log('BODY', body)
+  console.log('BODY', body);
   postReview(body)
     .then((results) => {
-      console.log(results);
       res.sendStatus(200);
     })
     .catch((err) => {

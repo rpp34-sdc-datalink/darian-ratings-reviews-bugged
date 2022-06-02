@@ -10,7 +10,7 @@ const { parse } = require("csv-parse");
 const etlReviews = (csv, next) => {
     etlSaveReview(csv, 'reviews')
       .then(()=> {
-        console.log('Review Saved')
+        // console.log('Review Saved')
         next()
       })
       .catch((err) => {
@@ -21,7 +21,7 @@ const etlReviews = (csv, next) => {
 const etlReviewPhotos = (csv, next) => {
   etlSaveReview(csv, 'reviewPhotos')
     .then(()=> {
-      console.log('Photo Saved')
+      // console.log('Photo Saved')
       next()
     })
     .catch((err) => {
@@ -32,7 +32,7 @@ const etlReviewPhotos = (csv, next) => {
 const etlCharacteristics = (csv, next) => {
     etlSaveReview(csv, 'characteristics')
       .then(() => {
-        console.log('Characteritcs Saved')
+        // console.log('Characteritcs Saved')
         next()
       })
       .catch((err) => {
@@ -105,7 +105,7 @@ const etlAsync = async (file, etl, type) => {
           })
           num += 10000;
         } finally {
-          console.log(`Saved ${num} lines`);
+          // console.log(`Saved ${num} lines`);
           dataToAdd = [];
           stream.resume()
         }
