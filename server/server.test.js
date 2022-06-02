@@ -1,4 +1,6 @@
 const axios = require('axios');
+jest.setTimeout(10000);
+
 
 describe('GET /reviews', () => {
   test('Should return reviews for given product_id', (done) => {
@@ -110,7 +112,6 @@ describe('GET /reviews', () => {
 });
 
 describe('POST /reviews', () => {
-  jest.setTimeout(10000);
   test('Should save new review to database correctly', (done) => {
     const data = {
       'product_id': 289303,
@@ -186,13 +187,22 @@ describe('POST /reviews', () => {
 });
 
 describe('GET /reviews/meta', () => {
-  test('Should return meta data for given product_id', () => {
-    expect(true).toBe(true);
+  test('Should return meta data for given product_id', (done) => {
+    axios.get('http://localhost:8024/reviews/meta?product_id=289303')
+      .then((res) => {
+        expect(res.data.recommend.true).toBe(7);
+        expect(res.data.characteristics['Fit'].value).toBe(2.5);
+        expect(res.data.ratings['5']).toBe(2);
+        done();
+      })
+      .catch((err) => {
+        console.log('GET reviews/meta ERROR:', err);
+        done();
+      });
   });
 });
 
 describe('PUT /reviews/:product_id/helpful', () => {
-  jest.setTimeout(10000);
   test('Should update heplful value for given review_id', (done) => {
     const data = {
       'product_id': 289303,
@@ -255,7 +265,63 @@ describe('PUT /reviews/:product_id/helpful', () => {
 });
 
 describe('PUT /reviews/:product_id/report', () => {
-  test('Should report review for given review_id', () => {
-    expect(true).toBe(true);
+  test('Should report a review for a given review_id', (done) => {
+    const data = {
+      'product_id': 289303,
+      'rating': 4,
+      'summary': 'This is okie doke',
+      'body': 'lsjfdj dsjflsidj ghew wefj dsljfks wqejij snd sdjsdjiwe ijsjfisjl fijsij fsijfjis wiejjg',
+      'recommended': true,
+      'name': 'Johny-2x',
+      'email': 'johnjohn@jj.com',
+      'photos': [
+        'https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png'
+      ],
+      'characteristics': {
+        '5590879': 5,
+        '5590880': 5,
+        '5590881': 5,
+        '5590882': 5
+      }
+    };
+    const config = {
+      method: 'put',
+      url: 'http://localhost:8024/reviews/5774953/report'
+    };
+
+    axios.post('http://localhost:8024/reviews', data)
+      .then(() => {
+        axios(config)
+          .then(() => {
+            axios.get('http://localhost:8024/reviews?product_id=289303&sort=newest')
+              .then((res) => {
+                let index = res.data.results.length - 1;
+                let lastAddedReview = res.data.results[0];
+                let delConfig = {
+                  method: 'delete',
+                  url: 'http://localhost:8024/reviews/5774953'
+                };
+
+                axios(delConfig)
+                  .then(() => {
+                    expect(lastAddedReview.reported).toBe(true);
+                    done();
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                    done();
+                  });
+
+              })
+              .catch((err) => {
+                console.log(err);
+                done();
+              });
+          })
+          .catch((err) => {
+            console.log(err);
+            done();
+          });
+      });
   });
 });
