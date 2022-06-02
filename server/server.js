@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const app = express();
 const port = 8024;
 
-const {getReviews, getAllReviews, postReview} = require('../NoSQL-DB/no-sql-db.js');
+const {getReviews, getAllReviews, postReview, helpful} = require('../NoSQL-DB/no-sql-db.js');
 
 app.use(express.json());
 
@@ -93,10 +93,22 @@ app.post('/reviews', (req, res) => {
   console.log('BODY', body);
   postReview(body)
     .then((results) => {
-      res.sendStatus(200);
+      res.sendStatus(201);
     })
     .catch((err) => {
       console.log('POST ERROR:', err);
+      res.sendStatus(500);
+    });
+});
+
+app.put('/reviews/:review_id/helpful', (req, res) => {
+  const id = req.params.review_id;
+  helpful(id)
+    .then(() => {
+      res.sendStatus(201);
+    })
+    .catch((err) => {
+      console.log('PUT helpful ERROR:', err);
       res.sendStatus(500);
     });
 });

@@ -127,4 +127,8 @@ const postReview = (params) => {
 
 };
 
-module.exports = {newReview, etlSaveReview, getReviews, getAllReviews, postReview};
+const helpful = (review_id) => {
+  return newReview.updateOne({review_id}, {$inc: {helpfulness: 1}});
+};
+
+module.exports = {newReview, etlSaveReview, getReviews, getAllReviews, postReview, helpful};
