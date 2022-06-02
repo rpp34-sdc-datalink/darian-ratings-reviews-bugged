@@ -110,8 +110,79 @@ describe('GET /reviews', () => {
 });
 
 describe('POST /reviews', () => {
-  test('Should save new review to database correctly', () => {
-    expect(true).toBe(true);
+  jest.setTimeout(10000);
+  test('Should save new review to database correctly', (done) => {
+    const data = {
+      'product_id': 289303,
+      'rating': 4,
+      'summary': 'This is okie doke',
+      'body': 'lsjfdj dsjflsidj ghew wefj dsljfks wqejij snd sdjsdjiwe ijsjfisjl fijsij fsijfjis wiejjg',
+      'recommended': true,
+      'name': 'Johny-2x',
+      'email': 'johnjohn@jj.com',
+      'photos': [
+        'https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png'
+      ],
+      'characteristics': {
+        '5590879': 5,
+        '5590880': 5,
+        '5590881': 5,
+        '5590882': 5
+      }
+    };
+
+    axios.post('http://localhost:8024/reviews', data)
+      .then(() => {
+        axios.get('http://localhost:8024/reviews?product_id=289303&count=100')
+          .then((response) => {
+            let reviewAdded = response.data.results[response.data.results.length - 1];
+            console.log({reviewAdded});
+            let expected = {
+              'review_id': 5774953,
+              'summary': 'This is okie doke',
+              'recommend': true,
+              'reported': false,
+              'response': '',
+              'body': 'lsjfdj dsjflsidj ghew wefj dsljfks wqejij snd sdjsdjiwe ijsjfisjl fijsij fsijfjis wiejjg',
+              'date': '1654200316081',
+              'reviewer_name': 'Johny-2x',
+              'reviewer_email': 'johnjohn@jj.com',
+              'helpfulness': 0,
+              'photos': [{'id': 0, 'url': 'https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png'}],
+              'rating': 4,
+              'characteristics': {
+                'Fit': {'id': '5590879', 'value': 5},
+                'Length': {'id': '5590880', 'value': 5},
+                'Comfort': {'id': '5590881', 'value': 5},
+                'Quality': {'id': '5590882', 'value': 5}
+              }
+            };
+
+            expect(reviewAdded.review_id).toBe(expected.review_id);
+            expect(reviewAdded.summary).toBe(expected.summary);
+            expect(reviewAdded.body).toBe(expected.body);
+            expect(reviewAdded.reviewer_name).toBe(expected.reviewer_name);
+            expect(reviewAdded.reviewer_email).toBe(expected.reviewer_email);
+            let config = {
+              method: 'delete',
+              url: 'http://localhost:8024/reviews/5774953'
+            };
+            axios(config)
+              .then(() => {
+                done();
+              })
+              .catch((err) => {
+                console.log(err);
+                done()
+              });
+          })
+          .catch((err) => {
+            console.log('TEST ERROR: GET /reviews in POST', err);
+          });
+      })
+      .catch((err) => {
+        console.log('TEST ERROR: POST /reviews', err);
+      });
   });
 });
 

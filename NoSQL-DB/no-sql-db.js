@@ -130,8 +130,13 @@ const postReview = (params) => {
 const helpful = (review_id) => {
   return newReview.updateOne({review_id}, {$inc: {helpfulness: 1}});
 };
+
 const report = (review_id) => {
   return newReview.updateOne({review_id}, {reported: true});
 };
 
-module.exports = {newReview, etlSaveReview, getReviews, getAllReviews, postReview, report, helpful};
+const deleteReview = (review_id) => {
+  return newReview.deleteOne({review_id});
+}
+
+module.exports = {newReview, etlSaveReview, getReviews, getAllReviews, postReview, report, deleteReview, helpful};

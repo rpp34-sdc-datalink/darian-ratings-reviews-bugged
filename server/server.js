@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const app = express();
 const port = 8024;
 
-const {getReviews, getAllReviews, postReview, helpful, report} = require('../NoSQL-DB/no-sql-db.js');
+const {getReviews, getAllReviews, postReview, helpful, report, deleteReview} = require('../NoSQL-DB/no-sql-db.js');
 
 app.use(express.json());
 
@@ -105,6 +105,7 @@ app.put('/reviews/:review_id/helpful', (req, res) => {
       res.sendStatus(500);
     });
 });
+
 app.put('/reviews/:review_id/report', (req, res) => {
   const id = req.params.review_id;
   report(id)
@@ -113,6 +114,19 @@ app.put('/reviews/:review_id/report', (req, res) => {
     })
     .catch((err) => {
       console.log('PUT report ERROR:', err);
+      res.sendStatus(500);
+    });
+});
+
+app.delete('/reviews/:review_id', (req, res) => {
+  const id = req.params.review_id;
+
+  deleteReview(id)
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch((err) => {
+      console.log('DELETE Review ERROR:', err);
       res.sendStatus(500);
     });
 });
