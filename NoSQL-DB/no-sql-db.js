@@ -137,6 +137,6 @@ const report = (review_id) => {
 
 const deleteReview = (review_id) => {
   return newReview.deleteOne({review_id});
-}
+};
 
 module.exports = {newReview, etlSaveReview, getReviews, getAllReviews, postReview, report, deleteReview, helpful};

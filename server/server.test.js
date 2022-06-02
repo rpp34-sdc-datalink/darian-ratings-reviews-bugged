@@ -136,7 +136,6 @@ describe('POST /reviews', () => {
         axios.get('http://localhost:8024/reviews?product_id=289303&count=100')
           .then((response) => {
             let reviewAdded = response.data.results[response.data.results.length - 1];
-            console.log({reviewAdded});
             let expected = {
               'review_id': 5774953,
               'summary': 'This is okie doke',
@@ -173,7 +172,7 @@ describe('POST /reviews', () => {
               })
               .catch((err) => {
                 console.log(err);
-                done()
+                done();
               });
           })
           .catch((err) => {
@@ -193,8 +192,65 @@ describe('GET /reviews/meta', () => {
 });
 
 describe('PUT /reviews/:product_id/helpful', () => {
-  test('Should update heplful value for given review_id', () => {
-    expect(true).toBe(true);
+  jest.setTimeout(10000);
+  test('Should update heplful value for given review_id', (done) => {
+    const data = {
+      'product_id': 289303,
+      'rating': 4,
+      'summary': 'This is okie doke',
+      'body': 'lsjfdj dsjflsidj ghew wefj dsljfks wqejij snd sdjsdjiwe ijsjfisjl fijsij fsijfjis wiejjg',
+      'recommended': true,
+      'name': 'Johny-2x',
+      'email': 'johnjohn@jj.com',
+      'photos': [
+        'https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png'
+      ],
+      'characteristics': {
+        '5590879': 5,
+        '5590880': 5,
+        '5590881': 5,
+        '5590882': 5
+      }
+    };
+    const config = {
+      method: 'put',
+      url: 'http://localhost:8024/reviews/5774953/helpful'
+    };
+
+    axios.post('http://localhost:8024/reviews', data)
+      .then(() => {
+        axios(config)
+          .then(() => {
+            axios.get('http://localhost:8024/reviews?product_id=289303&sort=newest')
+              .then((res) => {
+                let index = res.data.results.length - 1;
+                let lastAddedReview = res.data.results[0];
+                let delConfig = {
+                  method: 'delete',
+                  url: 'http://localhost:8024/reviews/5774953'
+                };
+
+                axios(delConfig)
+                  .then(() => {
+                    expect(lastAddedReview.helpfulness).toBe(1);
+                    done();
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                    done();
+                  });
+
+              })
+              .catch((err) => {
+                console.log(err);
+                done();
+              });
+          })
+          .catch((err) => {
+            console.log(err);
+            done();
+          });
+      });
   });
 });
 
