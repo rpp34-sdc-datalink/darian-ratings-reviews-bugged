@@ -191,7 +191,7 @@ describe('GET /reviews/meta', () => {
     axios.get('http://localhost:8024/reviews/meta?product_id=289303')
       .then((res) => {
         expect(res.data.recommend.true).toBe(7);
-        expect(res.data.characteristics['Fit'].value).toBe(2.5);
+        expect(res.data.characteristics['Fit'].value).toBe(2.25);
         expect(res.data.ratings['5']).toBe(2);
         done();
       })

@@ -1,11 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
+const cors = require('cors');
 const port = 8024;
 
 const {getReviews, getAllReviews, postReview, helpful, report, deleteReview} = require('../NoSQL-DB/no-sql-db.js');
 
 app.use(express.json());
+app.use(cors());
 
 app.get('/reviews', (req, res) => {
   const params = req.query;
@@ -17,7 +19,7 @@ app.get('/reviews', (req, res) => {
         count: results.length || 5,
         results: results
       };
-      res.send(response);
+      res.send(results);
     })
     .catch((err) => {
       console.log('GET Reviews ERROR:', err);
@@ -26,12 +28,12 @@ app.get('/reviews', (req, res) => {
 
 });
 
-app.get('/reviews/meta', (req, res) => {
-  const product_id = req.query.product_id;
+app.get('/reviews/meta/:product_id', (req, res) => {
+  const product_id = req.params.product_id;
   let response = {
     product_id: product_id,
     ratings: {},
-    recommend: {},
+    recommended: {},
     characteristics: {}
   };
 
@@ -48,10 +50,10 @@ app.get('/reviews/meta', (req, res) => {
         } else {
           response.ratings[review.rating] += 1;
         }
-        if (response.recommend[review.recommend] === undefined) {
-          response.recommend[review.recommend] = 1;
+        if (response.recommended[review.recommend] === undefined) {
+          response.recommended[review.recommend] = 1;
         } else {
-          response.recommend[review.recommend] += 1;
+          response.recommended[review.recommend] += 1;
         }
 
         for (let key in review.characteristics) {
