@@ -1,5 +1,5 @@
 const {Schema, model, mongoose} = require('mongoose');
-const {saveReview, newReview} = require('./no-sql-db.js');
+const {etlSaveReview, newReview} = require('./no-sql-db.js');
 const fs = require('fs');
 const readline = require('readline');
 const path = require('path');
@@ -8,9 +8,9 @@ const { parse } = require("csv-parse");
 
 
 const etlReviews = (csv, next) => {
-    saveReview(csv, 'reviews')
+    etlSaveReview(csv, 'reviews')
       .then(()=> {
-        console.log('Review Saved')
+        // console.log('Review Saved')
         next()
       })
       .catch((err) => {
@@ -19,9 +19,9 @@ const etlReviews = (csv, next) => {
 }
 
 const etlReviewPhotos = (csv, next) => {
-  saveReview(csv, 'reviewPhotos')
+  etlSaveReview(csv, 'reviewPhotos')
     .then(()=> {
-      console.log('Photo Saved')
+      // console.log('Photo Saved')
       next()
     })
     .catch((err) => {
@@ -30,9 +30,9 @@ const etlReviewPhotos = (csv, next) => {
 }
 
 const etlCharacteristics = (csv, next) => {
-    saveReview(csv, 'characteristics')
+    etlSaveReview(csv, 'characteristics')
       .then(() => {
-        console.log('Characteritcs Saved')
+        // console.log('Characteritcs Saved')
         next()
       })
       .catch((err) => {
@@ -52,6 +52,9 @@ const etlAsync = async (file, etl, type) => {
       if (type === 'reviews') {
         let review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness;
         [review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness] = row;
+        if (response === 'null') {
+          response = '';
+        }
         dataToAdd.push({review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness});
       }
 
@@ -64,6 +67,7 @@ const etlAsync = async (file, etl, type) => {
       if (type === 'photo') {
         let id, review_id, url;
         [id, review_id, url] = row;
+        id = +id;
         let photo = {id, url};
         stream.pause()
         let rev = await newReview.findOne({review_id});
@@ -101,7 +105,7 @@ const etlAsync = async (file, etl, type) => {
           })
           num += 10000;
         } finally {
-          console.log(`Saved ${num} lines`);
+          // console.log(`Saved ${num} lines`);
           dataToAdd = [];
           stream.resume()
         }
@@ -123,17 +127,17 @@ const etlAsync = async (file, etl, type) => {
       }
       if (type === 'reviews') {
         console.log("******Reviews Finished******");
-        let csvFile = path.resolve(__dirname, '../SDC-app-data/csv-data/characteristics.csv')
+        let csvFile = path.resolve(__dirname, '../../SDC-app-data/csv-data/characteristics.csv')
         etlAsync(csvFile, 'noFuncitonNeeded', 'char')
       }
       if (type === 'char') {
         console.log('******Characteristics Finished******')
-        let csvFile = path.resolve(__dirname, '../SDC-app-data/csv-data/reviews_photos.csv')
+        let csvFile = path.resolve(__dirname, '../../SDC-app-data/csv-data/reviews_photos.csv')
         etlAsync(csvFile, etlReviewPhotos, 'photo')
       }
       if(type === 'photo') {
         console.log('******Photos Finished******')
-        let csvFile = path.resolve(__dirname, '../SDC-app-data/csv-data/characteristic_reviews.csv')
+        let csvFile = path.resolve(__dirname, '../../SDC-app-data/csv-data/characteristic_reviews.csv')
         etlAsync(csvFile, etlCharacteristics, 'rev-char')
       }
       if(type === 'rev-char') {
@@ -147,4 +151,4 @@ const etlAsync = async (file, etl, type) => {
     });
 }
 
-etlAsync(path.resolve(__dirname, '../SDC-app-data/csv-data/reviews.csv'), etlReviews, 'reviews');
+etlAsync(path.resolve(__dirname, '../../SDC-app-data/csv-data/reviews.csv'), etlReviews, 'reviews');
