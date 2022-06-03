@@ -73,16 +73,10 @@ const getAllReviews = (product_id) => {
 };
 
 const postReview = (params) => {
-  let product_id = params.product_id;
-  let rating = params.rating;
-  let summary = params.summary;
-  let body = params.body;
-  let recommended = params.recommended;
-  let name = params.name;
+  let product_id, rating, summary, body, recommended, name, email, photos, characteristics;
+  ({product_id, rating, summary, body, recommended, name, email, photos, characteristics} = params);
   let date = Date.now();
-  let email = params.email;
-  let photos = params.photos;
-  let characteristics = params.characteristics;
+
   return newReview.find({}).sort({review_id: -1}).limit(1)
     .then((results) => {
       let newId = results[0].review_id + 1;
