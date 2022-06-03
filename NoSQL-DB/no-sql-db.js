@@ -73,7 +73,6 @@ const getAllReviews = (product_id) => {
 };
 
 const postReview = (params) => {
-  console.log(params);
   let product_id = params.product_id;
   let rating = params.rating;
   let summary = params.summary;
@@ -105,7 +104,6 @@ const postReview = (params) => {
         .then((dataToAdd) => {
           let allPhotos = dataToAdd.p;
           let allChars = dataToAdd.c;
-          console.log({dataToAdd})
           return newReview.create({
             review_id: results[0].review_id + 1,
             product_id,
@@ -123,8 +121,7 @@ const postReview = (params) => {
     })
     .catch((err) => {
       console.log('DB Post ERROR', err);
-    })
-
+    });
 };
 
 const helpful = (review_id) => {
