@@ -4,44 +4,54 @@ jest.setTimeout(10000);
 
 describe('GET /reviews', () => {
   test('Should return reviews for given product_id', (done) => {
-    axios.get('http://localhost:8024/reviews?product_id=28930&count=100')
+    axios.get('http://localhost:8024/reviews?product_id=28930')
       .then((response) => {
-        expect(response.data.product).toBe('28930');
+        let dataPoints = Object.keys(response.data[0]);
+        let oneRecord = response.data[0];
+        dataPoints.forEach((lineName) => {
+          expect(oneRecord[lineName]).toBeDefined();
+        });
         done();
       })
       .catch((err) => {
         console.log('TEST ERROR: GET /reviews', err);
+        expect({ERROR: err}).toBe('**Yay!! No Errors**');
+        done();
       });
   });
 
   test('Should return, at max, 5 reviews if no count param provided', (done) => {
     axios.get('http://localhost:8024/reviews?product_id=100')
       .then((response) => {
-        let reviews = response.data.results;
+        let reviews = response.data;
         expect(reviews.length).toBe(5);
         done();
       })
       .catch((err) => {
         console.log('TEST ERROR: GET /reviews', err);
+        expect({ERROR: err}).toBe('**Yay!! No Errors**');
+        done();
       });
   });
 
   test('Should return 10 reviews if count param is set to 10', (done) => {
     axios.get('http://localhost:8024/reviews?product_id=30022&count=10')
       .then((response) => {
-        let reviews = response.data.results;
+        let reviews = response.data;
         expect(reviews.length).toBe(10);
         done();
       })
       .catch((err) => {
         console.log('TEST ERROR: GET /reviews', err);
+        expect({ERROR: err}).toBe('**Yay!! No Errors**');
+        done();
       });
   });
 
   test('Should sort by newest review if sort-param is "newest"', (done) => {
     axios.get('http://localhost:8024/reviews?sort=newest&count=100&product_id=30022')
       .then((response) => {
-        let reviews = response.data.results;
+        let reviews = response.data;
         let prevDate = +reviews[0].date;
         let sorted = true;
 
@@ -59,13 +69,15 @@ describe('GET /reviews', () => {
       })
       .catch((err) => {
         console.log('TEST ERROR: GET /reviews/newest', err);
+        expect({ERROR: err}).toBe('**Yay!! No Errors**');
+        done();
       });
   });
 
   test('Should sort by helpfulness if sort-param is "helpful"', (done) => {
     axios.get('http://localhost:8024/reviews?sort=helpful&count=100&product_id=30022')
       .then((response) => {
-        let reviews = response.data.results;
+        let reviews = response.data;
         let prevHelpfulStat = reviews[0].helpfulness;
         let sorted = true;
 
@@ -83,13 +95,15 @@ describe('GET /reviews', () => {
       })
       .catch((err) => {
         console.log('TEST ERROR: GET /reviews/helpful', err);
+        expect({ERROR: err}).toBe('**Yay!! No Errors**');
+        done();
       });
   });
 
   test('Should sort by relevant if sort-param is "relevant"', (done) => {
     axios.get('http://localhost:8024/reviews?sort=relevant&count=100&product_id=30022')
       .then((response) => {
-        let reviews = response.data.results;
+        let reviews = response.data;
         let prevReviewId = reviews[0].review_id;
         let sorted = true;
 
@@ -107,6 +121,8 @@ describe('GET /reviews', () => {
       })
       .catch((err) => {
         console.log('TEST ERROR: GET /reviews/relevant', err);
+        expect({ERROR: err}).toBe('**Yay!! No Errors**');
+        done();
       });
   });
 });
@@ -136,7 +152,7 @@ describe('POST /reviews', () => {
       .then(() => {
         axios.get('http://localhost:8024/reviews?product_id=289303&count=100')
           .then((response) => {
-            let reviewAdded = response.data.results[response.data.results.length - 1];
+            let reviewAdded = response.data[response.data.length - 1];
             let expected = {
               'review_id': 5774953,
               'summary': 'This is okie doke',
@@ -173,30 +189,36 @@ describe('POST /reviews', () => {
               })
               .catch((err) => {
                 console.log(err);
+                expect({ERROR: err}).toBe('**Yay!! No Errors**');
                 done();
               });
           })
           .catch((err) => {
             console.log('TEST ERROR: GET /reviews in POST', err);
+            expect({ERROR: err}).toBe('**Yay!! No Errors**');
+            done();
           });
       })
       .catch((err) => {
         console.log('TEST ERROR: POST /reviews', err);
+        expect({ERROR: err}).toBe('**Yay!! No Errors**');
+        done();
       });
   });
 });
 
 describe('GET /reviews/meta', () => {
   test('Should return meta data for given product_id', (done) => {
-    axios.get('http://localhost:8024/reviews/meta?product_id=289303')
+    axios.get('http://localhost:8024/reviews/meta/289303')
       .then((res) => {
-        expect(res.data.recommend.true).toBe(7);
+        expect(res.data.recommended.true).toBe(7);
         expect(res.data.characteristics['Fit'].value).toBe(2.25);
         expect(res.data.ratings['5']).toBe(2);
         done();
       })
       .catch((err) => {
         console.log('GET reviews/meta ERROR:', err);
+        expect({ERROR: err}).toBe('**Yay!! No Errors**');
         done();
       });
   });
@@ -233,8 +255,8 @@ describe('PUT /reviews/:product_id/helpful', () => {
           .then(() => {
             axios.get('http://localhost:8024/reviews?product_id=289303&sort=newest')
               .then((res) => {
-                let index = res.data.results.length - 1;
-                let lastAddedReview = res.data.results[0];
+                let index = res.data.length - 1;
+                let lastAddedReview = res.data[0];
                 let delConfig = {
                   method: 'delete',
                   url: 'http://localhost:8024/reviews/5774953'
@@ -247,17 +269,20 @@ describe('PUT /reviews/:product_id/helpful', () => {
                   })
                   .catch((err) => {
                     console.log(err);
+                    expect({ERROR: err}).toBe('**Yay!! No Errors**');
                     done();
                   });
 
               })
               .catch((err) => {
                 console.log(err);
+                expect({ERROR: err}).toBe('**Yay!! No Errors**');
                 done();
               });
           })
           .catch((err) => {
             console.log(err);
+            expect({ERROR: err}).toBe('**Yay!! No Errors**');
             done();
           });
       });
@@ -295,8 +320,8 @@ describe('PUT /reviews/:product_id/report', () => {
           .then(() => {
             axios.get('http://localhost:8024/reviews?product_id=289303&sort=newest')
               .then((res) => {
-                let index = res.data.results.length - 1;
-                let lastAddedReview = res.data.results[0];
+                let index = res.data.length - 1;
+                let lastAddedReview = res.data[0];
                 let delConfig = {
                   method: 'delete',
                   url: 'http://localhost:8024/reviews/5774953'
@@ -309,17 +334,20 @@ describe('PUT /reviews/:product_id/report', () => {
                   })
                   .catch((err) => {
                     console.log(err);
+                    expect({ERROR: err}).toBe('**Yay!! No Errors**');
                     done();
                   });
 
               })
               .catch((err) => {
                 console.log(err);
+                expect({ERROR: err}).toBe('**Yay!! No Errors**');
                 done();
               });
           })
           .catch((err) => {
             console.log(err);
+            expect({ERROR: err}).toBe('**Yay!! No Errors**');
             done();
           });
       });
