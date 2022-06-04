@@ -139,3 +139,5 @@ app.delete('/reviews/:review_id', (req, res) => {
 app.listen(port, () => {
   console.log(`Server Listening on port ${port}`);
 });
+
+module.exports = app;

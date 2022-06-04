@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest",
     "coverage": "jest --coverage --coverageReporters='text-summary'",
+    "cover": "jest --coverage",
     "etl": "node NoSQL-DB/etl.js",
     "server": "nodemon server/server.js"
   },
@@ -31,6 +32,7 @@
     "mongoose": "^6.3.3",
     "mysql2": "^2.3.3",
     "nodemon": "^2.0.16",
-    "sequelize": "^6.19.0"
+    "sequelize": "^6.19.0",
+    "supertest": "^6.2.3"
   }
 }

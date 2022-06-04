@@ -1,13 +1,15 @@
 const axios = require('axios');
+const request = require('supertest');
+const api = require('./server.js');
 jest.setTimeout(10000);
 
 
 describe('GET /reviews', () => {
   test('Should return reviews for given product_id', (done) => {
-    axios.get('http://localhost:8024/reviews?product_id=28930')
-      .then((response) => {
-        let dataPoints = Object.keys(response.data[0]);
-        let oneRecord = response.data[0];
+    request(api).get('/reviews?product_id=28930')
+      .then((res) => {
+        let oneRecord = JSON.parse(res.text)[0];
+        let dataPoints = Object.keys(oneRecord);
         dataPoints.forEach((lineName) => {
           expect(oneRecord[lineName]).toBeDefined();
         });
@@ -21,10 +23,11 @@ describe('GET /reviews', () => {
   });
 
   test('Should return, at max, 5 reviews if no count param provided', (done) => {
-    axios.get('http://localhost:8024/reviews?product_id=100')
-      .then((response) => {
-        let reviews = response.data;
-        expect(reviews.length).toBe(5);
+
+    request(api).get('/reviews?product_id=100')
+      .then((res) => {
+        const response = JSON.parse(res.text);
+        expect(response.length).toBe(5);
         done();
       })
       .catch((err) => {
@@ -35,10 +38,11 @@ describe('GET /reviews', () => {
   });
 
   test('Should return 10 reviews if count param is set to 10', (done) => {
-    axios.get('http://localhost:8024/reviews?product_id=30022&count=10')
-      .then((response) => {
-        let reviews = response.data;
-        expect(reviews.length).toBe(10);
+
+    request(api).get('/reviews?product_id=30022&count=10')
+      .then((res) => {
+        const response = JSON.parse(res.text);
+        expect(response.length).toBe(10);
         done();
       })
       .catch((err) => {
@@ -49,14 +53,14 @@ describe('GET /reviews', () => {
   });
 
   test('Should sort by newest review if sort-param is "newest"', (done) => {
-    axios.get('http://localhost:8024/reviews?sort=newest&count=100&product_id=30022')
-      .then((response) => {
-        let reviews = response.data;
-        let prevDate = +reviews[0].date;
+    request(api).get('/reviews?sort=newest&count=100&product_id=30022')
+      .then((res) => {
+        const response = JSON.parse(res.text);
+        let prevDate = +response[0].date;
         let sorted = true;
 
-        for (let i = 1; i < reviews.length; i++) {
-          let currentDate = +reviews[i].date;
+        for (let i = 1; i < response.length; i++) {
+          let currentDate = +response[i].date;
           if (currentDate > prevDate) {
             sorted = false;
             break;
@@ -75,9 +79,9 @@ describe('GET /reviews', () => {
   });
 
   test('Should sort by helpfulness if sort-param is "helpful"', (done) => {
-    axios.get('http://localhost:8024/reviews?sort=helpful&count=100&product_id=30022')
-      .then((response) => {
-        let reviews = response.data;
+    request(api).get('/reviews?sort=helpful&count=100&product_id=30022')
+      .then((res) => {
+        let reviews = JSON.parse(res.text);
         let prevHelpfulStat = reviews[0].helpfulness;
         let sorted = true;
 
@@ -101,9 +105,9 @@ describe('GET /reviews', () => {
   });
 
   test('Should sort by relevant if sort-param is "relevant"', (done) => {
-    axios.get('http://localhost:8024/reviews?sort=relevant&count=100&product_id=30022')
-      .then((response) => {
-        let reviews = response.data;
+    request(api).get('/reviews?sort=relevant&count=100&product_id=30022')
+      .then((res) => {
+        let reviews = JSON.parse(res.text);
         let prevReviewId = reviews[0].review_id;
         let sorted = true;
 
@@ -150,9 +154,10 @@ describe('POST /reviews', () => {
 
     axios.post('http://localhost:8024/reviews', data)
       .then(() => {
-        axios.get('http://localhost:8024/reviews?product_id=289303&count=100')
-          .then((response) => {
-            let reviewAdded = response.data[response.data.length - 1];
+        request(api).get('/reviews?product_id=289303&count=100')
+          .then((res) => {
+            let reviews = JSON.parse(res.text);
+            let reviewAdded = reviews[reviews.length - 1];
             let expected = {
               'review_id': 5774953,
               'summary': 'This is okie doke',
@@ -209,11 +214,12 @@ describe('POST /reviews', () => {
 
 describe('GET /reviews/meta', () => {
   test('Should return meta data for given product_id', (done) => {
-    axios.get('http://localhost:8024/reviews/meta/289303')
+    request(api).get('/reviews/meta/289303')
       .then((res) => {
-        expect(res.data.recommended.true).toBe(7);
-        expect(res.data.characteristics['Fit'].value).toBe(2.25);
-        expect(res.data.ratings['5']).toBe(2);
+        let response = JSON.parse(res.text);
+        expect(response.recommended.true).toBe(7);
+        expect(response.characteristics['Fit'].value).toBe(2.25);
+        expect(response.ratings['5']).toBe(2);
         done();
       })
       .catch((err) => {
@@ -253,10 +259,11 @@ describe('PUT /reviews/:product_id/helpful', () => {
       .then(() => {
         axios(config)
           .then(() => {
-            axios.get('http://localhost:8024/reviews?product_id=289303&sort=newest')
+            request(api).get('/reviews?product_id=289303&sort=newest')
               .then((res) => {
-                let index = res.data.length - 1;
-                let lastAddedReview = res.data[0];
+                const response = JSON.parse(res.text);
+                let index = response.length - 1;
+                let lastAddedReview = response[0];
                 let delConfig = {
                   method: 'delete',
                   url: 'http://localhost:8024/reviews/5774953'
@@ -318,10 +325,11 @@ describe('PUT /reviews/:product_id/report', () => {
       .then(() => {
         axios(config)
           .then(() => {
-            axios.get('http://localhost:8024/reviews?product_id=289303&sort=newest')
+            request(api).get('/reviews?product_id=289303&sort=newest')
               .then((res) => {
-                let index = res.data.length - 1;
-                let lastAddedReview = res.data[0];
+                const response = JSON.parse(res.text);
+                let index = response.length - 1;
+                let lastAddedReview = response[0];
                 let delConfig = {
                   method: 'delete',
                   url: 'http://localhost:8024/reviews/5774953'
