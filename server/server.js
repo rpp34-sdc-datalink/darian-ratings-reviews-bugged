@@ -19,6 +19,9 @@ app.get('/reviews', (req, res) => {
         count: results.length || 5,
         results: results
       };
+      for (let i = 0; i < results.length; i++) {
+        results[i].date = new Date(+results[i].date).toISOString();
+      }
       res.send(results);
     })
     .catch((err) => {

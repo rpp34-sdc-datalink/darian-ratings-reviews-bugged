@@ -7,7 +7,7 @@
     "test": "jest",
     "coverage": "jest --coverage --coverageReporters='text-summary'",
     "etl": "node NoSQL-DB/etl.js",
-    "start-server": "nodemon server/server.js"
+    "server": "nodemon server/server.js"
   },
   "repository": {
     "type": "git",
