@@ -20,9 +20,9 @@ app.get('/reviews', (req, res) => {
         results: results
       };
       for (let i = 0; i < results.length; i++) {
-        results[i].date = new Date(+results[i].date).toISOString();
+        response.results[i].date = new Date(+results[i].date).toISOString();
       }
-      res.send(results);
+      res.send(response);
     })
     .catch((err) => {
       console.log('GET Reviews ERROR:', err);
@@ -31,8 +31,8 @@ app.get('/reviews', (req, res) => {
 
 });
 
-app.get('/reviews/meta/:product_id', (req, res) => {
-  const product_id = req.params.product_id;
+app.get('/reviews/meta', (req, res) => {
+  const product_id = req.query.product_id;
   let response = {
     product_id: product_id,
     ratings: {},

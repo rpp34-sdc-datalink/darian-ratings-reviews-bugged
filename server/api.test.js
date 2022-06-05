@@ -8,7 +8,7 @@ describe('GET /reviews', () => {
   test('Should return reviews for given product_id', (done) => {
     request(api).get('/reviews?product_id=28930')
       .then((res) => {
-        let oneRecord = JSON.parse(res.text)[0];
+        let oneRecord = JSON.parse(res.text).results[0];
         let dataPoints = Object.keys(oneRecord);
         dataPoints.forEach((lineName) => {
           expect(oneRecord[lineName]).toBeDefined();
@@ -26,7 +26,7 @@ describe('GET /reviews', () => {
 
     request(api).get('/reviews?product_id=100')
       .then((res) => {
-        const response = JSON.parse(res.text);
+        const response = JSON.parse(res.text).results;
         expect(response.length).toBe(5);
         done();
       })
@@ -41,7 +41,7 @@ describe('GET /reviews', () => {
 
     request(api).get('/reviews?product_id=30022&count=10')
       .then((res) => {
-        const response = JSON.parse(res.text);
+        const response = JSON.parse(res.text).results;
         expect(response.length).toBe(10);
         done();
       })
@@ -55,7 +55,7 @@ describe('GET /reviews', () => {
   test('Should sort by newest review if sort-param is "newest"', (done) => {
     request(api).get('/reviews?sort=newest&count=100&product_id=30022')
       .then((res) => {
-        const response = JSON.parse(res.text);
+        const response = JSON.parse(res.text).results;
         let prevDate = +response[0].date;
         let sorted = true;
 
@@ -81,7 +81,7 @@ describe('GET /reviews', () => {
   test('Should sort by helpfulness if sort-param is "helpful"', (done) => {
     request(api).get('/reviews?sort=helpful&count=100&product_id=30022')
       .then((res) => {
-        let reviews = JSON.parse(res.text);
+        let reviews = JSON.parse(res.text).results;
         let prevHelpfulStat = reviews[0].helpfulness;
         let sorted = true;
 
@@ -107,7 +107,7 @@ describe('GET /reviews', () => {
   test('Should sort by relevant if sort-param is "relevant"', (done) => {
     request(api).get('/reviews?sort=relevant&count=100&product_id=30022')
       .then((res) => {
-        let reviews = JSON.parse(res.text);
+        let reviews = JSON.parse(res.text).results;
         let prevReviewId = reviews[0].review_id;
         let sorted = true;
 
@@ -156,7 +156,7 @@ describe('POST /reviews', () => {
       .then(() => {
         request(api).get('/reviews?product_id=289303&count=100')
           .then((res) => {
-            let reviews = JSON.parse(res.text);
+            let reviews = JSON.parse(res.text).results;
             let reviewAdded = reviews[reviews.length - 1];
             let expected = {
               'review_id': 5774953,
@@ -214,8 +214,9 @@ describe('POST /reviews', () => {
 
 describe('GET /reviews/meta', () => {
   test('Should return meta data for given product_id', (done) => {
-    request(api).get('/reviews/meta/289303')
+    request(api).get('/reviews/meta?product_id=289303')
       .then((res) => {
+        // console.log('DATA:', res)
         let response = JSON.parse(res.text);
         expect(response.recommended.true).toBe(7);
         expect(response.characteristics['Fit'].value).toBe(2.25);
@@ -261,7 +262,7 @@ describe('PUT /reviews/:product_id/helpful', () => {
           .then(() => {
             request(api).get('/reviews?product_id=289303&sort=newest')
               .then((res) => {
-                const response = JSON.parse(res.text);
+                const response = JSON.parse(res.text).results;
                 let index = response.length - 1;
                 let lastAddedReview = response[0];
                 let delConfig = {
@@ -327,7 +328,7 @@ describe('PUT /reviews/:product_id/report', () => {
           .then(() => {
             request(api).get('/reviews?product_id=289303&sort=newest')
               .then((res) => {
-                const response = JSON.parse(res.text);
+                const response = JSON.parse(res.text).results;
                 let index = response.length - 1;
                 let lastAddedReview = response[0];
                 let delConfig = {
