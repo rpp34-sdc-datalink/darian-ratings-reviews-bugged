@@ -216,7 +216,6 @@ describe('GET /reviews/meta', () => {
   test('Should return meta data for given product_id', (done) => {
     request(api).get('/reviews/meta?product_id=289303')
       .then((res) => {
-        // console.log('DATA:', res)
         let response = JSON.parse(res.text);
         expect(response.recommended.true).toBe(7);
         expect(response.characteristics['Fit'].value).toBe(2.25);

@@ -8,7 +8,8 @@
     "coverage": "jest --coverage --coverageReporters='text-summary'",
     "cover": "jest --coverage",
     "etl": "node NoSQL-DB/etl.js",
-    "server": "nodemon server/server.js"
+    "server": "nodemon server/server.js",
+    "k6-test": "k6 run stress-test.js"
   },
   "repository": {
     "type": "git",
