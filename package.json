@@ -9,7 +9,8 @@
     "cover": "jest --coverage",
     "etl": "node NoSQL-DB/etl.js",
     "server": "nodemon server/server.js",
-    "k6-test": "k6 run stress-test.js"
+    "k6-test": "k6 run stress-test.js",
+    "k6-newrelic": "K6_STATSD_ENABLE_TAGS=true k6 run --out statsd stress-test.js"
   },
   "repository": {
     "type": "git",
