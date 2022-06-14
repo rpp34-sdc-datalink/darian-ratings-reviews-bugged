@@ -13,16 +13,20 @@ app.get('/reviews', (req, res) => {
   const params = req.query;
   getReviews(params)
     .then((results) => {
-      let response = {
-        product: params.product_id,
-        page: params.page || 0,
-        count: results.length || 5,
-        results: results
-      };
-      for (let i = 0; i < results.length; i++) {
-        response.results[i].date = new Date(+results[i].date).toISOString();
+      if (results.length === 0) {
+        res.status(404).send('This product does not exist.');
+      } else {
+        let response = {
+          product: params.product_id,
+          page: params.page || 0,
+          count: results.length || 5,
+          results: results
+        };
+        for (let i = 0; i < results.length; i++) {
+          response.results[i].date = new Date(+results[i].date).toISOString();
+        }
+        res.send(response);
       }
-      res.send(response);
     })
     .catch((err) => {
       console.log('GET Reviews ERROR:', err);
@@ -42,44 +46,48 @@ app.get('/reviews/meta', (req, res) => {
 
   getAllReviews(product_id)
     .then((results) => {
-      let charsAvg = {};
-      let charIds = {};
+      if (results.length === 0) {
+        res.status(404).send('This product does not exist.');
+      } else {
+        let charsAvg = {};
+        let charIds = {};
 
-      for (let i = 0; i < results.length; i++) {
-        let review = results[i];
+        for (let i = 0; i < results.length; i++) {
+          let review = results[i];
 
-        if (response.ratings[review.rating] === undefined) {
-          response.ratings[review.rating] = 1;
-        } else {
-          response.ratings[review.rating] += 1;
-        }
-        if (response.recommended[review.recommend] === undefined) {
-          response.recommended[review.recommend] = 1;
-        } else {
-          response.recommended[review.recommend] += 1;
-        }
-
-        for (let key in review.characteristics) {
-          let value = +review.characteristics[key].value;
-          let id = +review.characteristics[key].id;
-          if (charsAvg[key] === undefined) {
-            charsAvg[key] = value;
-            charIds[key] = id;
+          if (response.ratings[review.rating] === undefined) {
+            response.ratings[review.rating] = 1;
           } else {
-            charsAvg[key] += value;
+            response.ratings[review.rating] += 1;
+          }
+          if (response.recommended[review.recommend] === undefined) {
+            response.recommended[review.recommend] = 1;
+          } else {
+            response.recommended[review.recommend] += 1;
+          }
+
+          for (let key in review.characteristics) {
+            let value = +review.characteristics[key].value;
+            let id = +review.characteristics[key].id;
+            if (charsAvg[key] === undefined) {
+              charsAvg[key] = value;
+              charIds[key] = id;
+            } else {
+              charsAvg[key] += value;
+            }
           }
         }
-      }
 
-      for (let key in charsAvg) {
-        charsAvg[key] = {
-          value: charsAvg[key] / results.length,
-          id: charIds[key]
-        };
-      }
+        for (let key in charsAvg) {
+          charsAvg[key] = {
+            value: charsAvg[key] / results.length,
+            id: charIds[key]
+          };
+        }
 
-      response.characteristics = charsAvg;
-      res.send(response);
+        response.characteristics = charsAvg;
+        res.send(response);
+      }
 
     })
     .catch((err) => {
@@ -91,7 +99,11 @@ app.get('/reviews/meta', (req, res) => {
 app.post('/reviews', (req, res) => {
   postReview(req.body)
     .then((results) => {
-      res.sendStatus(201);
+      if (results === 'This product does not exist.') {
+        res.status(404).send('This product does not exist.');
+      } else {
+        res.sendStatus(201);
+      }
     })
     .catch((err) => {
       console.log('POST ERROR:', err);

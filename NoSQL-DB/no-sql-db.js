@@ -1,4 +1,5 @@
 const {Schema, model, mongoose} = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 mongoose.connect('mongodb://localhost:27017/sdc-database')
   .then(() => {
@@ -10,7 +11,7 @@ mongoose.connect('mongodb://localhost:27017/sdc-database')
 
 const Review = new Schema({
   product_id: String,
-  review_id: {type: Number, index: true, unique: true},
+  review_id: {type: String || Number, index: true, unique: true},
   summary: String,
   recommend: Boolean,
   reported: {type: Boolean, default: false},
@@ -61,7 +62,15 @@ const getReviews = (params) => {
       __v: false,
       characteristics: false
     }
-  ).limit(count).sort(sort);
+  ).limit(count).sort(sort)
+    .catch((err) => {
+      console.log('hiii')
+      if (err.message === 'Product Does Not Exist') {
+        return 'This product does not exist.';
+      } else {
+        throw err;
+      }
+    });
 };
 
 const getAllReviews = (product_id) => {
@@ -69,7 +78,10 @@ const getAllReviews = (product_id) => {
     _id: false,
     product_id: false,
     __v: false
-  });
+  })
+    .catch((err) => {
+      throw err;
+    });
 };
 
 const postReview = (params) => {
@@ -77,44 +89,49 @@ const postReview = (params) => {
   ({product_id, rating, summary, body, recommended, name, email, photos, characteristics} = params);
   let date = Date.now();
 
-  return newReview.find({}).sort({review_id: -1}).limit(1)
-    .then((results) => {
-      let newId = results[0].review_id + 1;
-      return newReview.find({product_id: `${product_id}`})
-        .then((prod) => {
-          let chars = prod[0].characteristics;
-          let charsObj = {};
-          for (let key in chars) {
-            let id = chars[key].id;
-            charsObj[key] = {id: id, value: characteristics[id]};
-          }
+  return newReview.find({product_id: `${product_id}`}).limit(-1)
+    .then((prod) => {
+      if (prod.length === 0) {
+        throw new Error('Product Does Not Exist');
+      }
+      let chars = prod[0].characteristics;
+      let charsObj = {};
+      for (let key in chars) {
+        let id = chars[key].id;
+        charsObj[key] = {id: id, value: characteristics[id]};
+      }
 
-          let photosArray = [];
-          for (let i = 0; i < photos.length; i++) {
-            photosArray.push({id: i, url: photos[i]});
-          }
-          return {c: charsObj, p: photosArray};
-        })
-        .then((dataToAdd) => {
-          let allPhotos = dataToAdd.p;
-          let allChars = dataToAdd.c;
-          return newReview.create({
-            review_id: results[0].review_id + 1,
-            product_id,
-            rating,
-            summary,
-            body,
-            date,
-            recommend: recommended,
-            reviewer_name: name,
-            reviewer_email: email,
-            photos: allPhotos,
-            characteristics: allChars
-          });
-        });
+      let photosArray = [];
+      for (let i = 0; i < photos.length; i++) {
+        photosArray.push({id: i, url: photos[i]});
+      }
+      return {c: charsObj, p: photosArray};
+    })
+    .then((dataToAdd) => {
+      let allPhotos = dataToAdd.p;
+      let allChars = dataToAdd.c;
+      return newReview.create({
+        review_id: uuidv4(),
+        product_id,
+        rating,
+        summary,
+        body,
+        date,
+        recommend: recommended,
+        reviewer_name: name,
+        reviewer_email: email,
+        photos: allPhotos,
+        characteristics: allChars
+      });
     })
     .catch((err) => {
-      console.log('DB Post ERROR', err);
+      console.log(err.message);
+      if (err.message === 'Product Does Not Exist') {
+        return 'This product does not exist.';
+      } else {
+        throw err;
+      }
+
     });
 };
 
