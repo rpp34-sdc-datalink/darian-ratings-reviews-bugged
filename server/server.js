@@ -47,7 +47,7 @@ app.get('/reviews/meta', (req, res) => {
   getAllReviews(product_id)
     .then((results) => {
       if (results.length === 0) {
-        res.status(404).send('This product does not exist.');
+        res.status(201).send('This product does not exist.');
       } else {
         let charsAvg = {};
         let charIds = {};
@@ -100,7 +100,7 @@ app.post('/reviews', (req, res) => {
   postReview(req.body)
     .then((results) => {
       if (results === 'This product does not exist.') {
-        res.status(404).send('This product does not exist.');
+        res.status(201).send('This product does not exist.');
       } else {
         res.sendStatus(201);
       }
