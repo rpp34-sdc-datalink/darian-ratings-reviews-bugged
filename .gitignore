@@ -2,3 +2,4 @@
 /SDC-app-data
 *.csv
 /coverage
+*.cer

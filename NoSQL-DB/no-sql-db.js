@@ -11,7 +11,7 @@ mongoose.connect('mongodb://localhost:27017/sdc-database')
 
 const Review = new Schema({
   product_id: String,
-  review_id: {type: String || Number, index: true, unique: true},
+  review_id: {type: String || Number, unique: true},
   summary: String,
   recommend: Boolean,
   reported: {type: Boolean, default: false},
